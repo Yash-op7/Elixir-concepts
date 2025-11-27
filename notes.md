@@ -136,3 +136,39 @@ result
 {:ok, result} = {:error, :oops}
 ❗ (MatchError) no match of right hand side value: {:error, :oops}
 ```
+
+## Atom
+- An atom is a constant whose name is its own value.
+- So, `:hello` literally evaluates to the value `:hello`.
+> an **atom** is a constant whose value is its own name
+
+## How Elixir code becomes machine code
+1. Elixir (.ex / .exs files)
+2. Compiled to BEAM bytecode (.beam files)
+3. Executed by the BEAM virtual machine
+4. OS & CPU run the VM (native code inside VM runtime)
+
+So the CPU never runs Elixir code directly — it runs BEAM, and BEAM runs bytecode compiled from Elixir.
+![alt text](image-1.png)
+
+### ⚡ Why doesn’t Elixir compile directly to machine code?
+
+Because BEAM VM provides features that CPUs don’t:
+
+- Feature	CPU	BEAM
+- Millions of concurrent processes	❌	✔
+- Process crashes don’t affect others	❌	✔
+- Hot code replace without downtime	❌	✔
+- Deterministic scheduling	❌	✔
+- Distributed messaging & clustering	❌	✔
+
+**The performance goal of BEAM is soft real-time, high reliability, and concurrency, not raw CPU throughput.**
+
+more on this below:
+
+![alt text](image-2.png)
+![alt text](image-3.png)
+
+### 🧩 Part 3: Explaining your comparison table
+![alt text](image-4.png)
+![alt text](image-5.png)
