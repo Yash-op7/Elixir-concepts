@@ -1,3 +1,5 @@
+# Notes
+- Personal notes made while reading docs, source: https://hexdocs.pm/elixir/
 ## Function arity
 - Other languages distinguish functions by name and parameter types.
 - Elixir distinguishes them by name + arity.
@@ -142,6 +144,129 @@ result
 - So, `:hello` literally evaluates to the value `:hello`.
 > an **atom** is a constant whose value is its own name
 
+## More on pattern matching
+- The `[head | tail]` format is not only used on pattern matching but also for prepending items to a list:
+
+```exs
+iex> list = [1, 2, 3]
+ [1, 2, 3]
+iex> [0 | list]
+[0, 1, 2, 3]
+```
+In some cases, you don't care about a particular value in a pattern. It is a common practice to bind those values to the underscore, _. For example, if only the head of the list matters to us, we can assign the tail to underscore:
+```exs
+[head | _] = [1, 2, 3]
+[1, 2, 3]
+head
+1
+```
+The variable `_` is special in that it can never be read from. Trying to read from it gives a `CompileError`.
+
+Although pattern matching allows us to build powerful constructs, its usage is limited. For instance, you cannot make function calls on the left side of a match. The following example is invalid:
+
+```exs
+iex> length([1, [2], 3]) = 3
+❗ (CompileError) iex:1: cannot invoke remote function :erlang.length/1 inside match
+```
+
+## The pin operator
+Variables in Elixir can be rebound:
+```exs
+iex> x = 1
+1
+iex> x = 2
+2
+```
+
+- However, there are times when we don't want variables to be rebound.
+
+- Use the pin operator `^` when you want to pattern match against a variable's existing value rather than rebinding the variable.
+
+```exs
+iex> x = 1
+1
+iex> ^x = 2
+** (MatchError) no match of right hand side value: 2
+
+iex> x = 1
+1
+iex> [^x, 2, 3] = [1, 2, 3]
+[1, 2, 3]
+iex> {y, ^x} = {2, 1}
+{2, 1}
+iex> y
+2
+iex> {y, ^x} = {2, 2}
+❗ (MatchError) no match of right hand side value: {2, 2}
+```
+
+## case, cond, and if
+
+
+## functions
+- is_function/1 and is_function/2
+- The number of arguments in each anonymous function clause needs to be the same, otherwise an error is raised.
+```exs
+g = fn
+  x, y when x > 0 -> x + y
+  0, y ->
+    IO.puts("This got matched");
+    x + 1;
+    y + 1;
+  x, y when x < 0 -> y - x
+end
+
+IO.puts(g.(1, 2))
+IO.puts(g.(-1, 2))
+IO.puts(g.(0, 2))
+```
+
+
+## The capture operator
+Throughout this guide, we have been using the  `name/arity` notation to refer to functions. It happens that this notation can actually be used to capture an existing function into a data-type we can pass around, similar to how anonymous functions behave.
+
+- **Capturing**: Produces a function reference from a named function.
+
+- **Binding**: Assigns any value (including a function) to a variable.
+
+
+Since operators are functions in Elixir, you can also capture operators:
+![alt text](image-6.png)
+There are no optional arguements in elixir functions.
+
+- `&(&1 + 1)` above is exactly the same as `fn x -> x + 1 end`.
+
+## Keyword lists
+- basically a list of 2 element tuples where the first element is an atom acting as the key and the second element is the value
+
+- `[width: 10, height: 20]`
+- can also be written as `[{ :width, 10 }, { :height, 20 }]`
+
+Properties
+- Ordered?	✔ Yes (order matters)
+- Keys unique?	❌ No (duplicate keys allowed)
+- Syntax sugar?	✔ Yes
+
+## 🔹 What are Maps?
+
+Maps are Elixir’s real dictionary / hash map type.
+
+Example:
+
+`%{width: 10, height: 20}`
+
+Properties
+- Ordered?	❌ No (unordered)
+- Keys unique?	✔ Yes
+- Fast lookup	✔ Yes
+
+## 🔥 When to use what
+
+- Function options / configuration ->	**Keyword list**$$
+- Storing structured data ->	**Map**
+- Needing fast lookup ->	**Map**
+- Need duplicate keys / preserve insertion order ->	**Keyword list**
+
 ## How Elixir code becomes machine code
 1. Elixir (.ex / .exs files)
 2. Compiled to BEAM bytecode (.beam files)
@@ -172,3 +297,30 @@ more on this below:
 ### 🧩 Part 3: Explaining your comparison table
 ![alt text](image-4.png)
 ![alt text](image-5.png)
+
+## Modules
+⭐ The One Big Concept this page teaches:
+
+A module is just a collection of pure functions — no classes, no objects, no fields.
+
+Elixir is functional:
+
+- no mutable state in modules
+- no instance variables
+- no constructors
+
+Everything is function calls + data.
+```iex
+defmodule C1 do
+  def fun(a, b) do
+    a + b
+  end
+  defp privateFunction, do: fun(3, :secret)
+end
+```
+
+## Enum
+`Enum.map([1,2,3], &(&1 * 2))`
+
+
+## 📘 Alias, Require, Import — What They Are & When To Use Them
